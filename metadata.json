@@ -1,0 +1,6 @@
+{
+  "name": "JARVIS",
+  "description": "L.E.O. (Logical Executive Operator) - Advanced AI voice and text assistant with 3D dual-layer energy sphere visualizer, custom dual-color presets, multi-language speech recognition, and SQLite memory.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

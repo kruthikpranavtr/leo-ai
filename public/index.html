@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>L.E.O. // AI Voice Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-dark theme-amber" data-theme="amber">
+  <!-- Background Grid & Holo Scanlines -->
+  <div class="hologram-grid" aria-hidden="true"></div>
+  <div class="scanline" aria-hidden="true"></div>
+  <div class="vignette" aria-hidden="true"></div>
+
+  <!-- Main Container -->
+  <div class="app-container" id="appContainer">
+
+    <!-- Top HUD Telemetry Bar -->
+    <header class="hud-header" id="hudHeader">
+      <div class="hud-brand">
+        <div class="stark-logo-mark">
+          <span class="stark-arc-icon"></span>
+          <div class="brand-text">
+            <span class="brand-title">L.E.O.</span>
+            <span class="brand-sub">LOGICAL EXECUTIVE OPERATOR // MK-VIII</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Telemetry Center -->
+      <div class="telemetry-bar" id="telemetryBar">
+        <div class="telemetry-item">
+          <span class="telemetry-label">CORE</span>
+          <span class="telemetry-val" id="coreStatus">100%</span>
+        </div>
+        <div class="telemetry-separator">/</div>
+        <div class="telemetry-item">
+          <span class="telemetry-label">NEURAL LINK</span>
+          <span class="telemetry-val val-active" id="neuralStatus">GEMINI-AI</span>
+        </div>
+        <div class="telemetry-separator">/</div>
+        <div class="telemetry-item">
+          <span class="telemetry-label">MEMORY</span>
+          <span class="telemetry-val val-active" id="memoryStatus">SQLITE-ACTIVE</span>
+        </div>
+        <div class="telemetry-separator">/</div>
+        <div class="telemetry-item">
+          <span class="telemetry-label">CLOCK</span>
+          <span class="telemetry-val" id="hudClock">00:00:00</span>
+        </div>
+      </div>
+
+      <!-- Header Action Controls (Language, Theme, Transcript, Settings) -->
+      <div class="header-actions">
+        <!-- Quick Language Dropdown -->
+        <div class="hud-quick-select-wrap" title="Change Interaction Language">
+          <svg class="picker-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="2" y1="12" x2="22" y2="12"/>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+          <select id="hudLanguageSelect" class="hud-compact-select" aria-label="Select Language">
+            <option value="en-US">English (US)</option>
+            <option value="es-ES">Español (Spanish)</option>
+            <option value="fr-FR">Français (French)</option>
+            <option value="de-DE">Deutsch (German)</option>
+            <option value="it-IT">Italiano (Italian)</option>
+            <option value="pt-BR">Português (Portuguese)</option>
+            <option value="hi-IN">हिन्दी (Hindi)</option>
+            <option value="ta-IN">தமிழ் (Tamil)</option>
+            <option value="te-IN">తెలుగు (Telugu)</option>
+            <option value="ja-JP">日本語 (Japanese)</option>
+            <option value="zh-CN">中文 (Chinese)</option>
+            <option value="ar-SA">العربية (Arabic)</option>
+            <option value="ru-RU">Русский (Russian)</option>
+            <option value="ko-KR">한국어 (Korean)</option>
+          </select>
+        </div>
+
+        <!-- Quick Theme Dropdown -->
+        <div class="hud-quick-select-wrap" title="Change HUD Hologram Color">
+          <svg class="picker-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 2a10 10 0 0 0 0 20z" fill="currentColor"/>
+          </svg>
+          <select id="hudThemeSelect" class="hud-compact-select" aria-label="Select HUD Color Theme">
+            <option value="amber" selected>⚡ Amber Gold</option>
+            <option value="cyan">💠 Cyber Cyan</option>
+            <option value="emerald">🟢 Emerald Matrix</option>
+            <option value="crimson">🔴 Crimson Forge</option>
+            <option value="violet">🟣 Ultraviolet</option>
+          </select>
+        </div>
+
+        <button class="hud-btn hud-btn-accent" id="btnOpenDatabase" title="Manage SQLite Live Knowledge Base & Current Data">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+          <span>DATA CORE</span>
+          <span class="hud-badge" id="knowledgeCountBadge">3</span>
+        </button>
+        <button class="hud-btn" id="btnToggleChat" title="Toggle Chat Transcript">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>TRANSCRIPT</span>
+        </button>
+        <button class="hud-btn" id="btnOpenSettings" title="Configure System Settings">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span>SETTINGS</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Workspace Layout -->
+    <main class="main-layout">
+
+      <!-- Left / Center: ARC REACTOR HUD & VOICE INTERACTION -->
+      <section class="arc-section" id="arcSection">
+        
+        <!-- Status Banner -->
+        <div class="hud-status-badge" id="hudStatusBadge">
+          <span class="status-dot"></span>
+          <span class="status-text" id="statusText">SYSTEM IDLE // STANDBY</span>
+        </div>
+
+        <!-- 3D DUAL-LAYER ENERGY SPHERE STAGE (RASENGAN / COSMIC CHAKRA VORTEX) -->
+        <div class="sphere-stage" id="sphereStage">
+          <div class="sphere-wrapper" id="reactorWrapper" role="button" tabindex="0" title="Click Energy Sphere to speak with L.E.O.">
+            <!-- 3D High-Res Energy Sphere Canvas -->
+            <canvas id="energySphereCanvas" class="energy-sphere-canvas" width="560" height="560"></canvas>
+            
+            <!-- Atmospheric Plasma Aura & Shockwave Rings -->
+            <div class="sphere-glow-aura" id="sphereGlowAura"></div>
+            <div class="sphere-shockwave wave-1" id="sphereWave1"></div>
+            <div class="sphere-shockwave wave-2" id="sphereWave2"></div>
+
+            <!-- Floating Center State Mic Badge Overlay -->
+            <div class="sphere-mic-badge" id="sphereMicBadge">
+              <svg class="mic-icon-svg" id="reactorMicIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                <line x1="12" y1="19" x2="12" y2="22"/>
+              </svg>
+              <div class="speaking-waves-icon" id="speakingWavesIcon">
+                <span></span><span></span><span></span><span></span><span></span>
+              </div>
+            </div>
+
+            <!-- Kinetic Rotation Hint -->
+            <div class="sphere-orbit-hint" id="sphereOrbitHint">TAP TO ACTIVATE // DRAG TO ROTATE</div>
+          </div>
+        </div>
+
+        <!-- Sphere Color Scheme Quick Selector -->
+        <div class="sphere-palette-bar" id="spherePaletteBar" title="Select Energy Sphere Dual Colors">
+          <span class="palette-label">SPHERE PALETTE:</span>
+          <button class="palette-btn active" data-preset="chakra" title="Electric Blue Outer with Radiant Gold Inner Core">🌀 CHAKRA (BLUE + GOLD)</button>
+          <button class="palette-btn" data-preset="solar" title="Amber Gold Outer with Quantum Cyan Inner Core">⚡ SOLAR (GOLD + CYAN)</button>
+          <button class="palette-btn" data-preset="nebula" title="Ultraviolet Outer with Emerald Green Inner Core">🟣 NEBULA (VIOLET + GREEN)</button>
+          <button class="palette-btn" data-preset="nova" title="Crimson Red Outer with Ice White Inner Core">🔴 NOVA (CRIMSON + WHITE)</button>
+          <button class="palette-btn" data-preset="matrix" title="Emerald Matrix Outer with Amber Core">🟢 MATRIX (EMERALD + GOLD)</button>
+        </div>
+
+        <!-- Audio Reactive Equalizer Bar -->
+        <div class="audio-spectrum" id="audioSpectrum" aria-hidden="true">
+          <div class="spec-bar"></div><div class="spec-bar"></div><div class="spec-bar"></div>
+          <div class="spec-bar"></div><div class="spec-bar"></div><div class="spec-bar"></div>
+          <div class="spec-bar"></div><div class="spec-bar"></div><div class="spec-bar"></div>
+          <div class="spec-bar"></div><div class="spec-bar"></div><div class="spec-bar"></div>
+          <div class="spec-bar"></div><div class="spec-bar"></div><div class="spec-bar"></div>
+          <div class="spec-bar"></div><div class="spec-bar"></div><div class="spec-bar"></div>
+          <div class="spec-bar"></div><div class="spec-bar"></div><div class="spec-bar"></div>
+        </div>
+
+        <!-- Live Transcribed / Current Spoken Response Banner -->
+        <div class="live-readout-card" id="liveReadoutCard">
+          <div class="readout-header">
+            <span class="readout-protocol">NEURAL AUDIO FEED</span>
+            <span class="readout-indicator" id="readoutIndicator">AWAITING INPUT</span>
+          </div>
+          <div class="readout-body" id="readoutContent">
+            "Good evening, sir. I am L.E.O., your Logical Executive Operator. All diagnostic telemetry is nominal. How may I be of service?"
+          </div>
+        </div>
+
+        <!-- Quick Command Chips -->
+        <div class="quick-commands" id="quickCommands">
+          <span class="quick-title">QUICK PROTOCOLS:</span>
+          <button class="cmd-chip chip-highlight" data-cmd="Write a complete Python script for a Snake game with curses.">🐍 PYTHON SNAKE GAME</button>
+          <button class="cmd-chip chip-highlight" data-cmd="Create a complete responsive modern landing page in HTML, Tailwind CSS, and JavaScript.">🌐 HTML/CSS WEBSITE</button>
+          <button class="cmd-chip chip-highlight" data-cmd="Write a complete React TypeScript component for an interactive todo list with local storage persistence.">⚛️ REACT CODE</button>
+          <button class="cmd-chip chip-highlight" data-cmd="Who is the Chief Minister of Tamil Nadu?">CM OF TAMIL NADU</button>
+          <button class="cmd-chip chip-data" id="chipOpenDbModal">DATA CORE</button>
+          <button class="cmd-chip" data-cmd="calculate 25 * 4 + 100">CALCULATE</button>
+          <button class="cmd-chip" data-cmd="set reminder in 10 seconds check reactor core">SET REMINDER</button>
+          <button class="cmd-chip" data-cmd="play Back in Black">PLAY MUSIC</button>
+          <button class="cmd-chip" data-cmd="What is the current time?">TIME</button>
+          <button class="cmd-chip" data-cmd="Give me a comprehensive system diagnostic and AI status report.">DIAGNOSTICS</button>
+        </div>
+
+      </section>
+
+      <!-- Right: CONVERSATION HISTORY & TRANSCRIPT PANEL -->
+      <aside class="chat-panel" id="chatPanel">
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            <h2>SYSTEM TRANSCRIPT</h2>
+          </div>
+          <div class="panel-actions">
+            <button class="icon-action-btn" id="btnClearChat" title="Clear SQLite History">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+            <button class="icon-action-btn close-panel-btn" id="btnCloseChat" title="Close Panel">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Chat Scroll Container -->
+        <div class="chat-messages" id="chatMessages">
+          <!-- Messages will be injected dynamically from SQLite via JS -->
+          <div class="msg-item system-intro">
+            <div class="msg-meta">
+              <span class="sender-tag tag-jarvis">L.E.O.</span>
+              <span class="msg-time">INITIALIZED</span>
+            </div>
+            <div class="msg-bubble jarvis-bubble">
+              Online and ready, sir. I am L.E.O., your Logical Executive Operator. You can speak directly in any supported language using the microphone or type below.
+            </div>
+          </div>
+        </div>
+      </aside>
+
+    </main>
+
+    <!-- Bottom Input & Interaction Dock -->
+    <footer class="bottom-dock" id="bottomDock">
+      <form class="input-form" id="chatForm">
+        <!-- Mic Button -->
+        <button type="button" class="mic-toggle-btn" id="btnMic" title="Click to speak (Voice Recognition)">
+          <div class="mic-pulse-ring"></div>
+          <svg class="mic-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" y1="19" x2="12" y2="22"/>
+          </svg>
+          <span class="mic-btn-label" id="micBtnLabel">SPEAK</span>
+        </button>
+
+        <!-- Command Input Field -->
+        <div class="input-wrapper">
+          <span class="cli-prefix">LEO://&gt;</span>
+          <input 
+            type="text" 
+            id="textInput" 
+            class="text-input" 
+            placeholder="Speak or type a command in any language... (e.g. 'What time is it?' or 'Open YouTube')" 
+            autocomplete="off" 
+            spellcheck="false"
+          >
+          <button type="button" class="clear-input-btn" id="btnClearInput" title="Clear Text" style="display: none;">
+            &times;
+          </button>
+        </div>
+
+        <!-- Submit Send Button -->
+        <button type="submit" class="send-btn" id="btnSend" title="Transmit command to LEO">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+          <span>SEND</span>
+        </button>
+      </form>
+    </footer>
+
+    <!-- SETTINGS MODAL DIALOG -->
+    <div class="modal-backdrop" id="settingsModal" style="display: none;">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title-wrap">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <h3>L.E.O. PROTOCOL CONFIGURATION</h3>
+          </div>
+          <button class="modal-close-btn" id="btnCloseSettings">&times;</button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Multi-Language Selector -->
+          <div class="setting-row">
+            <div class="setting-info">
+              <label for="selectLanguageModal" class="setting-label">SYSTEM INTERACTION LANGUAGE</label>
+              <span class="setting-desc">Sets voice recognition &amp; AI response language</span>
+            </div>
+            <select id="selectLanguageModal" class="hud-select">
+              <option value="en-US">English (United States)</option>
+              <option value="es-ES">Español (Spanish)</option>
+              <option value="fr-FR">Français (French)</option>
+              <option value="de-DE">Deutsch (German)</option>
+              <option value="it-IT">Italiano (Italian)</option>
+              <option value="pt-BR">Português (Portuguese)</option>
+              <option value="hi-IN">हिन्दी (Hindi)</option>
+              <option value="ta-IN">தமிழ் (Tamil)</option>
+              <option value="te-IN">తెలుగు (Telugu)</option>
+              <option value="ja-JP">日本語 (Japanese)</option>
+              <option value="zh-CN">中文 (Simplified Chinese)</option>
+              <option value="ar-SA">العربية (Arabic)</option>
+              <option value="ru-RU">Русский (Russian)</option>
+              <option value="ko-KR">한국어 (Korean)</option>
+            </select>
+          </div>
+
+          <!-- Color Theme Selection -->
+          <div class="setting-row">
+            <div class="setting-info">
+              <label for="selectThemeModal" class="setting-label">HUD HOLOGRAM COLOR THEME</label>
+              <span class="setting-desc">Select telemetry interface aesthetic</span>
+            </div>
+            <select id="selectThemeModal" class="hud-select">
+              <option value="amber">⚡ Amber Gold (Electric Amber)</option>
+              <option value="cyan">💠 Quantum Cyan (Arc Blue)</option>
+              <option value="emerald">🟢 Emerald Matrix (Cyber Green)</option>
+              <option value="crimson">🔴 Crimson Forge (Stark Red)</option>
+              <option value="violet">🟣 Ultraviolet (Deep Amethyst)</option>
+            </select>
+          </div>
+
+          <!-- 3D Energy Sphere Dual Color Scheme -->
+          <div class="setting-row">
+            <div class="setting-info">
+              <label for="selectSpherePresetModal" class="setting-label">3D ENERGY SPHERE DUAL COLOR</label>
+              <span class="setting-desc">Outer vortex sphere &amp; nested inner core colors</span>
+            </div>
+            <select id="selectSpherePresetModal" class="hud-select">
+              <option value="chakra">🌀 Chakra: Electric Blue Outer + Golden Sun Core</option>
+              <option value="solar">⚡ Solar Flare: Amber Gold Outer + Quantum Cyan Core</option>
+              <option value="nebula">🟣 Ultraviolet: Amethyst Violet Outer + Emerald Core</option>
+              <option value="nova">🔴 Crimson Nova: Ruby Red Outer + Ice White Core</option>
+              <option value="matrix">🟢 Plasma Matrix: Emerald Outer + Golden Core</option>
+            </select>
+          </div>
+
+          <!-- Voice Output Toggle -->
+          <div class="setting-row">
+            <div class="setting-info">
+              <label for="toggleSpeechOutput" class="setting-label">VOICE SYNTHESIS (TTS)</label>
+              <span class="setting-desc">Read AI responses aloud automatically</span>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggleSpeechOutput" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <!-- Select Voice -->
+          <div class="setting-row">
+            <div class="setting-info">
+              <label for="selectVoice" class="setting-label">SPEECH VOICE</label>
+              <span class="setting-desc">Select installed neural synthesis voice</span>
+            </div>
+            <select id="selectVoice" class="hud-select">
+              <option value="">Default System Voice</option>
+            </select>
+          </div>
+
+          <!-- Speech Rate -->
+          <div class="setting-row">
+            <div class="setting-info">
+              <label for="rangeRate" class="setting-label">SPEECH CADENCE / RATE</label>
+              <span class="setting-desc" id="rateValue">1.0x</span>
+            </div>
+            <input type="range" id="rangeRate" min="0.6" max="1.6" step="0.05" value="1.0" class="hud-slider">
+          </div>
+
+          <!-- Speech Pitch -->
+          <div class="setting-row">
+            <div class="setting-info">
+              <label for="rangePitch" class="setting-label">SPEECH PITCH</label>
+              <span class="setting-desc" id="pitchValue">1.0x</span>
+            </div>
+            <input type="range" id="rangePitch" min="0.7" max="1.3" step="0.05" value="1.0" class="hud-slider">
+          </div>
+
+          <!-- Sound Effects -->
+          <div class="setting-row">
+            <div class="setting-info">
+              <label for="toggleSfx" class="setting-label">HUD AUDIO EFFECTS</label>
+              <span class="setting-desc">Synthesizer beeps and activation chirps</span>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggleSfx" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <!-- Test Voice Button -->
+          <div class="setting-row test-row">
+            <button type="button" class="hud-btn" id="btnTestVoice">
+              <span>TEST VOICE OUTPUT</span>
+            </button>
+            <button type="button" class="hud-btn btn-danger" id="btnClearDbHistory">
+              <span>PURGE SQLITE MEMORY</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="hud-btn btn-primary" id="btnSaveSettings">SAVE &amp; CLOSE</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SQLITE DATABASE & KNOWLEDGE CORE MODAL -->
+    <div class="modal-backdrop" id="databaseModal" style="display: none;">
+      <div class="modal-card modal-card-wide">
+        <div class="modal-header">
+          <div class="modal-title-wrap">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+            <h3>SQLITE DATA CORE // KNOWLEDGE ENGINE</h3>
+          </div>
+          <button class="modal-close-btn" id="btnCloseDatabase">&times;</button>
+        </div>
+
+        <div class="modal-body db-modal-body">
+          <div class="db-modal-intro">
+            <span>Authoritative SQLite live knowledge base. Facts entered here are given top priority over generic AI pre-training.</span>
+          </div>
+
+          <!-- Add / Update Knowledge Form -->
+          <form class="knowledge-form" id="knowledgeForm">
+            <div class="knowledge-form-header">
+              <span class="sub-heading">ADD / UPDATE VERIFIED KNOWLEDGE FACT</span>
+            </div>
+            <div class="form-row-grid">
+              <div class="form-group">
+                <label for="inputKnowledgeTopic">TOPIC / ENTITY</label>
+                <input type="text" id="inputKnowledgeTopic" class="hud-input" placeholder="e.g. Tamil Nadu Chief Minister" required>
+              </div>
+              <div class="form-group">
+                <label for="selectKnowledgeCat">CATEGORY</label>
+                <select id="selectKnowledgeCat" class="hud-select w-full">
+                  <option value="politics">Politics &amp; Leaders</option>
+                  <option value="general">General Current Data</option>
+                  <option value="temporal">Temporal Baseline</option>
+                  <option value="system">System &amp; Persona</option>
+                  <option value="custom">Custom User Fact</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="inputKnowledgeFact">FACT DESCRIPTION / CURRENT VALUE</label>
+              <textarea id="inputKnowledgeFact" class="hud-textarea" rows="2" placeholder="e.g. The Chief Minister of Tamil Nadu is Joseph Vijay (TVK)." required></textarea>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="hud-btn btn-primary" id="btnSaveKnowledge">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                <span>COMMIT FACT TO SQLITE</span>
+              </button>
+              <button type="button" class="hud-btn" id="btnResetKnowledgeForm">
+                <span>RESET FORM</span>
+              </button>
+            </div>
+          </form>
+
+          <!-- Knowledge Records Display List -->
+          <div class="knowledge-records-section">
+            <div class="knowledge-records-header">
+              <span class="sub-heading">ACTIVE DATABASE RECORDS</span>
+              <span class="record-count-badge" id="recordCountBadge">3 Records</span>
+            </div>
+            <div class="knowledge-cards-container" id="knowledgeCardsContainer">
+              <!-- Dynamically populated from SQLite via JS -->
+              <div class="knowledge-loading">Querying SQLite database knowledge records...</div>
+            </div>
+          </div>
+
+          <!-- Database Management Actions -->
+          <div class="db-action-bar">
+            <button type="button" class="hud-btn" id="btnResetDefaultDataset" title="Restore default verified 2026 data">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+              <span>RESTORE 2026 DATASET</span>
+            </button>
+            <button type="button" class="hud-btn btn-danger" id="btnClearMessagesOnly" title="Purge old conversation history to eliminate outdated chat logs">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              <span>PURGE OLD CHAT LOGS</span>
+            </button>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button class="hud-btn btn-primary" id="btnCloseDbBottom">CLOSE DATA CORE</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alert / Toast Banner -->
+    <div class="hud-toast" id="hudToast" style="display: none;">
+      <span class="toast-icon">⚡</span>
+      <span class="toast-msg" id="toastMsg">Telemetry Alert</span>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
